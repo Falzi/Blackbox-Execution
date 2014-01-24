@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Built-By: Lizou_2
+Build-Jdk: 1.7.0_45
+Bundle-Version: 1.0.0.SNAPSHOT
+Tool: Bnd-0.0.357
+Bundle-Name: Blackbox Execution :: Routing Module
+Bnd-LastModified: 1389823394448
+Created-By: Apache Maven Bundle Plugin
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.blackbox.execution.routing
+Import-Package: javax.servlet;version="[2.5.0,3.0.0)",javax.servlet.ht
+ tp;version="[2.5.0,3.0.0)",org.apache.camel;version="2.10",org.apache
+ .camel.dataformat.bindy;version="2.10",org.apache.camel.dataformat.bi
+ ndy.annotation;version="2.10",org.apache.camel.processor.aggregate;ve
+ rsion="2.10",org.apache.commons.httpclient;version="[3.1.0,4.0.0)",or
+ g.apache.commons.lang;version="2.6",org.slf4j;version="1.6"
+

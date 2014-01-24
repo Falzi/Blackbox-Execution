@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>org.blackbox.execution.routing</artifactId>
+	<packaging>bundle</packaging>
+	<name>Blackbox Execution :: Routing Module</name>
+
+	<parent>
+		<groupId>org.blackbox</groupId>
+		<artifactId>org.blackbox.execution.parent</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-bindy</artifactId>
+			<version>${camel.version}</version>
+		</dependency>
+
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-http</artifactId>
+            <version>${camel.version}</version>
+        </dependency>
+        
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>${commons-lang}</version>
+		</dependency>
+            
+	</dependencies>
+
+	<build>
+		<plugins>
+			<!-- to compile with 1.5 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>${maven.compiler.source}</source>
+					<target>${maven.compiler.target}</target>
+				</configuration>
+			</plugin>
+
+			<!-- to generate the MANIFEST-FILE of the bundle -->
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<version>${felix-version}</version>
+				<configuration>
+					<manifestLocation>META-INF</manifestLocation>
+					<instructions>
+						<Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
+						<Export-Package>
+							!org.blackbox.execution.routing.c1.model
+						</Export-Package>
+						<!-- <Require-Bundle>org.blackbox.core.model</Require-Bundle> -->
+						<Import-Package>
+							javax.servlet;version="[2.5.0, 3.0.0)",
+                            javax.servlet.http;version="[2.5.0, 3.0.0)",
+                            org.apache.commons.httpclient;version="[3.1.0, 4.0.0)",
+                            org.apache.camel.dataformat.bindy,
+							*
+						</Import-Package>
+						<_failok>true</_failok>
+					</instructions>
+				</configuration>
+			</plugin>
+
+		</plugins>
+	</build>
+</project>

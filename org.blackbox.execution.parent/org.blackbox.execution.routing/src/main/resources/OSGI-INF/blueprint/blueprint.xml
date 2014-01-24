@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+      http://www.osgi.org/xmlns/blueprint/v1.0.0
+      http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+
+	<bean id="c1SplitProcessor" class="org.blackbox.execution.routing.c1.model.SplitProcessor" />
+	<bean id="c2Transform" class="org.blackbox.execution.routing.c2.model.Transform" />
+	<bean id="c3Transform" class="org.blackbox.execution.routing.c3.model.Transform" />
+	<bean id="c4AggregatorStrategy" class="org.blackbox.execution.routing.c4.model.AggregatorStrategy" />
+	<bean id="c5AggregatorStrategy" class="org.blackbox.execution.routing.c5.model.AggregatorStrategy" />
+	<bean id="c5Transform" class="org.blackbox.execution.routing.c5.model.Transform" />
+	<bean id="c6AggregatorStrategy" class="org.blackbox.execution.routing.c6.model.AggregatorStrategy" />
+	<bean id="c6Transform" class="org.blackbox.execution.routing.c6.model.Transform" />
+    <bean id="c7SplitProcessor" class="org.blackbox.execution.routing.c7.model.SplitProcessor" />
+    <bean id="c8AggregatorStrategy" class="org.blackbox.execution.routing.c8.model.AggregatorStrategy" />
+    <bean id="c9Transform" class="org.blackbox.execution.routing.c9.model.Transform" />
+   
+	<camelContext xmlns="http://camel.apache.org/schema/blueprint">
+		<route autoStartup="true" trace="false">
+			<from uri="file:C:\\Temp\\input?noop=true" />
+			<setHeader headerName="id">
+				<simple resultType="java.lang.String">test</simple>
+			</setHeader>
+			<unmarshal>
+				<bindy packages="org.blackbox.execution.routing.c1.model" type="Csv" />
+			</unmarshal>
+			<split>
+				<simple>body</simple>
+				<to uri="bean:c1SplitProcessor" />
+				<to uri="seda:row1" />
+			</split>
+		</route>
+
+		<route autoStartup="true" trace="false">
+			<from uri="seda:row1" />
+			<to uri="bean:c2Transform" />
+			<to uri="seda:row2" />
+		</route>
+
+		<route autoStartup="true" trace="false">
+			<from uri="seda:row2" />
+			<to uri="bean:c3Transform" />
+			<to uri="seda:row3" />
+		</route>
+
+		<route autoStartup="true" trace="true">
+			<from uri="seda:row3" />
+			<aggregate strategyRef="c4AggregatorStrategy" completionTimeout="500">
+				<correlationExpression>
+					<simple>header.id</simple>
+				</correlationExpression>
+				<multicast stopOnException="true">
+					<to uri="seda:row4" />
+					<to uri="seda:row5" />
+				</multicast>
+			</aggregate>
+		</route>
+
+
+		<route autoStartup="true" trace="false">
+			<from uri="seda:row4" />
+			<aggregate strategyRef="c5AggregatorStrategy"
+				completionSize="1">
+				<correlationExpression>
+					<simple>header.id</simple>
+				</correlationExpression>
+				<to uri="bean:c5Transform" />
+				<to uri="seda:row5" />
+			</aggregate>
+		</route>
+
+		<route autoStartup="true" trace="true">
+			<from uri="seda:row5" />
+			<aggregate strategyRef="c6AggregatorStrategy"
+				completionSize="2">
+				<correlationExpression>
+					<simple>header.id</simple>
+				</correlationExpression>
+				<to uri="bean:c6Transform" />
+				<to uri="seda:row7" />
+			</aggregate>
+		</route>
+
+		<route autoStartup="true" trace="true">
+			<from uri="seda:row7" />
+			<to uri="bean:c7SplitProcessor" />
+            <split streaming="true">
+                <simple>body</simple>                
+                <to uri="seda:row8" />
+            </split>
+		</route>
+
+        <route autoStartup="true" trace="true">
+            <from uri="seda:row8" />
+            <log message="seda:row8 = ${body}" />
+            <aggregate strategyRef="c8AggregatorStrategy" completionTimeout="500">
+                <correlationExpression>
+                    <simple>header.id</simple>
+                </correlationExpression>
+                <to uri="seda:row9" />
+            </aggregate>
+        </route>
+        
+		<route autoStartup="true" trace="true">
+			<from uri="seda:row9" />
+			<to uri="bean:c9Transform" />
+			<log message="Résultat = ${body}" />
+			<to uri="mock:result" />
+			<!-- <to uri="http:localhost:8090/camel/services?id=test" /> -->
+		</route>
+
+	</camelContext>
+
+</blueprint>
